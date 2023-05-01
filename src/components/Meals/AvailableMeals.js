@@ -1,3 +1,6 @@
+import Card from "../UI/Card";
+import Meal from "./Meal/Meal";
+
 import classes from "./AvailableMeals.module.css";
 
 const DUMMY_MEALS = [
@@ -29,19 +32,22 @@ const DUMMY_MEALS = [
 
 const AvailableMeals = () => {
   //헬퍼 상수
-  const mealsList = () => {
-    DUMMY_MEALS.map((meal) => (
-      <li key={meal.id} id={meal.id}>
-        <span>{meal.name}</span>
-        <span>{meal.description}</span>
-        <span>{meal.price}</span>
-      </li>
-    ));
-  };
+  //잘못 적은거 수정
+  const mealsList = DUMMY_MEALS.map((meal) => (
+    <Meal
+      id={meal.id} // 각 인풋 컴포넌트가 개별적으로 인식되기 위해 id 넣는게 좋음
+      key={meal.id}
+      name={meal.name}
+      description={meal.description}
+      price={meal.price}
+    />
+  ));
 
   return (
     <section className={classes.meals}>
-      <ul>{mealsList}</ul>
+      <Card>
+        <ul>{mealsList}</ul>
+      </Card>
     </section>
   );
 };
