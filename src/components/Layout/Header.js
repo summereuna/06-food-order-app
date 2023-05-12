@@ -3,12 +3,15 @@ import HeaderCardButton from "../UI/HeaderCartButton";
 import mealImg from "../../assets/meals.jpeg";
 import classes from "./Header.module.css";
 
-const Header = () => {
+const Header = (props) => {
   return (
     <>
       <header className={classes.header}>
         <h1>Ordinary Meals</h1>
-        <HeaderCardButton></HeaderCardButton>
+        <HeaderCardButton
+          onClick={props.onShowCart}
+          onCloseModal={props.onHideCart}
+        />
       </header>
       <div className={classes["main-image"]}>
         <img src={mealImg} alt="A table full of delicious food!" />
