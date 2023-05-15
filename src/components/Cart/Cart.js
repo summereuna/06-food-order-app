@@ -12,7 +12,9 @@ const Cart = (props) => {
   const hasItems = cartCtx.items.length > 0;
 
   const cartItemAddHandler = (item) => {
-    cartCtx.addItem(item);
+    // cartCtx.addItem(item); 으로 전달하면 아이템 추가 버튼 누르면 기존 값에 2배씩 추가되버림
+    cartCtx.addItem({ ...item, amount: 1 });
+    //위 처럼 작성해야 기존 아이템에 수량 +1씩 추가됨
   };
   const cartItemRemoveHandler = (id) => {
     cartCtx.removeItem(id);

@@ -61,8 +61,50 @@ const cartReducer = (state, action) => {
       totalAmount: updatedTotalAmount,
     };
   }
+
   if (action.type === "REMOVE") {
+    /*기본적으로는 기존 장바구니 항목 업데이트하는 것임
+    이미 항목이 있는 경우 그 항목의 amount를 -1 씩 줄여야함
+    그리고 amount가 0이되면 items 배열 자체에서 item 삭제해야 함
+    */
+
+    //먼저 cartItem 찾기
+    const existingCartItemIndex = state.items.findIndex(
+      //action 패치할 때 id 자체를 보내주고 있기 때문에 action.item.id가 아니라 action.id임
+      (item) => item.id === action.id
+    );
+    //해당 항목이 존재하면 해당 항목의 인덱스를 돌려주기 때문에 state.items 배열에 해당하는 인덱스를 넣어서 이미 장바구니에 넣음 아이템이 뭔지 찾을 수 있음
+    const existingCartItem = state.items[existingCartItemIndex];
+
+    //언제든
+    //수량 업데이트 = 기존 총 금액 - 장바구니에 든 항목 하나 당 가격(- 버튼 으로 1개씩 빼기 때문에 이 금액만 빼주면 됨)
+    const updatedTotalAmount = state.totalAmount - existingCartItem.price;
+
+    let updatedItems;
+    if (existingCartItem.amount === 1) {
+      //장바구니에 존재하는 항목의 수량이 1인 경우 -버튼 클릭 시 항목 자체 삭제
+      //filter()는 새 배열 반환하는 메서드: 모든 요소에 대해 함수 적용하여 true값 나오면 배열에 항목 유지, false나오면 배열에서 아이템 삭제 후 새 배열 반환
+      //여기서는 item.id와 액션의 id가 같지 않은 경우를 체크하여, 같지 않은 모든 항목은 true로 그대로 유지하고, 같은 것만 false가 되니까 그 항목은 삭제됨
+      updatedItems = state.items.filter((item) => item.id !== action.id);
+    } else {
+      //장바구니에 존재하는 항목 수량이 1보다 큰 경우
+      //항목은 삭제하지 말고 수량만 -1 씩
+      const updatedItem = {
+        ...existingCartItem,
+        //존재하는 항목의 수량 - 1
+        amount: existingCartItem.amount - 1,
+      };
+      //기존 배열 복사한 후
+      updatedItems = [...state.items];
+      //이미 있는 항목 인덱스에 수량 업데이트된 항목으로 덮어씌우기
+      updatedItems[existingCartItemIndex] = updatedItem;
+    }
+    return {
+      items: updatedItems,
+      totalAmount: updatedTotalAmount,
+    };
   }
+
   return defaultCartState;
 };
 
