@@ -1,16 +1,39 @@
+import { useContext } from "react";
+import CartContext from "../../store/cart-context";
+
 import Modal from "../UI/Modal";
 import classes from "./Cart.module.css";
+import CartItem from "./CartItem";
 
 const Cart = (props) => {
+  const cartCtx = useContext(CartContext);
+
+  const totalAmount = `$${cartCtx.totalAmount.toFixed(2)}`;
+  const hasItems = cartCtx.items.length > 0;
+
+  const cartItemAddHandler = (item) => {
+    cartCtx.addItem(item);
+  };
+  const cartItemRemoveHandler = (id) => {
+    cartCtx.removeItem(id);
+  };
+
   //헬퍼 상수
   const cartItems = (
     <ul className={classes["cart-items"]}>
-      {[{ id: "c1", name: "sushi", amount: 2, price: 12.99 }].map((item) => (
-        <li key={item.id}>
-          <div>{item.name}</div>
-          <div>{item.amount}</div>
-          <div>{item.price}</div>
-        </li>
+      {cartCtx.items.map((item) => (
+        <CartItem
+          key={item.id}
+          id={item.id}
+          name={item.name}
+          amount={item.amount}
+          price={item.price}
+          //bind()는 함수가 실행될 때 받을 인수를 미리 구성할 수 있음
+          //.bind(null, item.id) 추가되거나 삭제된 item이 add핸들러로 전달됨
+          onAdd={cartItemAddHandler.bind(null, item)}
+          //.bind(null, item.id) 추가되거나 삭제된 item의 id가 remove핸들러로 전달됨
+          onRemove={cartItemRemoveHandler.bind(null, item.id)}
+        />
       ))}
     </ul>
   );
@@ -19,17 +42,15 @@ const Cart = (props) => {
     <Modal onCloseModal={props.onCloseCart}>
       {cartItems}
       <div className={classes.total}>
-        <span>총 수량</span>
-        <span>35.62로 일단 하드코딩</span>
+        <span>총 결제금액</span>
+        <span>{totalAmount}</span>
       </div>
       <div className={classes.actions}>
         <button className={classes["button--alt"]} onClick={props.onCloseCart}>
           닫기
         </button>
-        <button className={classes.button}>
-          {/*장바구니에 들어있는 경우에만 주문 버튼 보이게  */}
-          주문하기
-        </button>
+        {/*장바구니에 들어있는 경우에만 주문 버튼 보이게 ! */}
+        {hasItems && <button className={classes.button}>주문하기</button>}
       </div>
     </Modal>
   );
