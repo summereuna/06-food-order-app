@@ -1,5 +1,5 @@
 import Card from "../UI/Card";
-import Meal from "./Meal/Meal";
+import MealItem from "./Meal/MealItem";
 
 import classes from "./AvailableMeals.module.css";
 
@@ -34,7 +34,7 @@ const AvailableMeals = () => {
   //헬퍼 상수
   //잘못 적은거 수정
   const mealsList = DUMMY_MEALS.map((meal) => (
-    <Meal
+    <MealItem
       id={meal.id} // 각 인풋 컴포넌트가 개별적으로 인식되기 위해 id 넣는게 좋음
       key={meal.id}
       name={meal.name}
