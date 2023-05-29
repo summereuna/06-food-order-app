@@ -6,16 +6,20 @@ import { useEffect, useState } from "react";
 
 const AvailableMeals = () => {
   const [meals, setMeals] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [httpError, setHttpError] = useState(null);
 
   useEffect(() => {
     const fetchMeals = async () => {
       const response = await fetch(
         "https://react-http-35c4a-default-rtdb.firebaseio.com/meals.json"
       );
-      const responseData = await response.json();
-      //console.log(responseData);
 
-      //중첩 객체 배열로 꺼내기
+      if (!response.ok) {
+        throw new Error("Something went wrong!");
+      }
+      const responseData = await response.json();
+
       const loadedMeals = [];
 
       for (const key in responseData) {
@@ -28,10 +32,32 @@ const AvailableMeals = () => {
         });
       }
       setMeals(loadedMeals);
+      setIsLoading(false);
     };
 
-    fetchMeals();
+    // 프로미스 내부에서 발생하는 오류를 처리하는 방법
+    fetchMeals().catch((error) => {
+      setIsLoading(false);
+      setHttpError(error.message);
+    });
   }, []);
+
+  //로딩 중인 경우, mealsList 매핑하기 전에 확인
+  if (isLoading) {
+    return (
+      <section className={classes.mealsLoading}>
+        <p>Loading...</p>
+      </section>
+    );
+  }
+
+  if (httpError) {
+    return (
+      <section className={classes.mealsError}>
+        <p>{httpError}</p>
+      </section>
+    );
+  }
 
   const mealsList = meals.map((meal) => (
     <MealItem
