@@ -1,11 +1,13 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import CartContext from "../../store/cart-context";
 
 import Modal from "../UI/Modal";
 import classes from "./Cart.module.css";
 import CartItem from "./CartItem";
+import Checkout from "./Checkout";
 
 const Cart = (props) => {
+  const [isCheckout, setIsCheckout] = useState(false);
   const cartCtx = useContext(CartContext);
 
   const totalAmount = `$${cartCtx.totalAmount.toFixed(2)}`;
@@ -18,6 +20,10 @@ const Cart = (props) => {
   };
   const cartItemRemoveHandler = (id) => {
     cartCtx.removeItem(id);
+  };
+
+  const orderHandler = () => {
+    setIsCheckout(true);
   };
 
   //헬퍼 상수
@@ -40,6 +46,20 @@ const Cart = (props) => {
     </ul>
   );
 
+  const modalActions = (
+    <div className={classes.actions}>
+      <button className={classes["button--alt"]} onClick={props.onCloseCart}>
+        닫기
+      </button>
+      {/*장바구니에 들어있는 경우에만 주문 버튼 보이게 ! */}
+      {hasItems && (
+        <button className={classes.button} onClick={orderHandler}>
+          주문하기
+        </button>
+      )}
+    </div>
+  );
+
   return (
     <Modal onCloseModal={props.onCloseCart}>
       {cartItems}
@@ -47,13 +67,8 @@ const Cart = (props) => {
         <span>총 결제금액</span>
         <span>{totalAmount}</span>
       </div>
-      <div className={classes.actions}>
-        <button className={classes["button--alt"]} onClick={props.onCloseCart}>
-          닫기
-        </button>
-        {/*장바구니에 들어있는 경우에만 주문 버튼 보이게 ! */}
-        {hasItems && <button className={classes.button}>주문하기</button>}
-      </div>
+      {isCheckout && <Checkout onCancel={props.onCloseCart} />}
+      {!isCheckout && modalActions}
     </Modal>
   );
 };
