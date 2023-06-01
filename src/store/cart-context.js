@@ -9,6 +9,7 @@ const CartContext = React.createContext({
   addItem: (item) => {},
   //장바구니에서 삭제해야 하는 항목 식별하여 없애기
   removeItem: (id) => {},
+  clearCart: () => {},
 });
 
 export default CartContext;

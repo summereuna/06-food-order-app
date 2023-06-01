@@ -63,6 +63,12 @@ const Checkout = (props) => {
       return;
     }
     //양식이 유효한 경우 Cart 데이터 제출
+    props.onConfirm({
+      name: enteredName,
+      city: enteredCity,
+      street: enteredStreet,
+      postal: enteredPostal,
+    });
   };
 
   // 스타일

@@ -8,6 +8,10 @@ import Checkout from "./Checkout";
 
 const Cart = (props) => {
   const [isCheckout, setIsCheckout] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  //성공 메시지
+  const [didSubmitting, setDidSubmitting] = useState(false);
+  const [error, setError] = useState(false);
   const cartCtx = useContext(CartContext);
 
   const totalAmount = `$${cartCtx.totalAmount.toFixed(2)}`;
@@ -24,6 +28,37 @@ const Cart = (props) => {
 
   const orderHandler = () => {
     setIsCheckout(true);
+  };
+
+  //데이터가 서버로 제출되어야 할 곳은 cart 컴포넌트
+  const submitOrderHandler = async (userData) => {
+    setIsSubmitting(true);
+    setError(null);
+    //유효한 경우 카트, 유저 데이터 모두 백엔드로 전송
+    try {
+      const response = await fetch(
+        "https://react-http-35c4a-default-rtdb.firebaseio.com/order.json",
+        {
+          method: "POST",
+          body: JSON.stringify({ user: userData, orderedItems: cartCtx.items }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("오류 발생! 관리자에게 문의하세요.");
+      }
+    } catch (error) {
+      setError(error.message);
+      setIsSubmitting(false);
+      return;
+    }
+
+    //주문 중
+    setIsSubmitting(false);
+    //폼 제출 완료되면 true로
+    setDidSubmitting(true);
+    //카트 비우기
+    cartCtx.clearCart();
   };
 
   //헬퍼 상수
@@ -60,15 +95,44 @@ const Cart = (props) => {
     </div>
   );
 
-  return (
-    <Modal onCloseModal={props.onCloseCart}>
+  //모달에 런데링될 컨텐츠
+  //양식 작성
+  const cartModalContent = (
+    <>
       {cartItems}
       <div className={classes.total}>
         <span>총 결제금액</span>
         <span>{totalAmount}</span>
       </div>
-      {isCheckout && <Checkout onCancel={props.onCloseCart} />}
+      {isCheckout && (
+        <Checkout onCancel={props.onCloseCart} onConfirm={submitOrderHandler} />
+      )}
       {!isCheckout && modalActions}
+      {error && <p>{error}</p>}
+    </>
+  );
+
+  //양식 제출 중
+  const isSubmitModalContent = <p>주문 중...</p>;
+
+  //양식 제출 완료 후
+  const didSubmitModalContent = (
+    <>
+      <p>주문 완료!</p>
+      {
+        <div className={classes.actions}>
+          <button className={classes.button} onClick={props.onCloseCart}>
+            닫기
+          </button>
+        </div>
+      }
+    </>
+  );
+  return (
+    <Modal onCloseModal={props.onCloseCart}>
+      {!isSubmitting && !didSubmitting && cartModalContent}
+      {isSubmitting && isSubmitModalContent}
+      {!isSubmitting && didSubmitting && didSubmitModalContent}
     </Modal>
   );
 };
